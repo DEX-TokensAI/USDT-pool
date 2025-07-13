@@ -1,121 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DEX Admin Panel</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>USDT Pool Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      background-color: #1a1a2e;
-      color: white;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e2f;
+      color: #ffffff;
     }
-    .navbar, .card {
-      background-color: #16213e;
+    #loginContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    .tabs li a {
+    #dashboard {
+      display: none;
+      flex-direction: row;
+    }
+    .sidebar {
+      width: 220px;
+      background-color: #252539;
+      height: 100vh;
+      padding-top: 30px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    }
+    .sidebar h2 {
+      color: #00d1b2;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: #ccc;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .sidebar a:hover {
+      background-color: #2f2f44;
       color: #00d1b2;
     }
-    .tabs li.is-active a {
-      border-bottom-color: #00d1b2;
+    .main {
+      flex: 1;
+      padding: 20px;
     }
-    .card-content input {
-      background-color: #0f3460;
-      border: none;
-      color: white;
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
     }
-    .card-content button {
+    .tab {
+      margin-right: 15px;
+      padding: 10px 20px;
+      background-color: #2e2e45;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .tab.active {
       background-color: #00d1b2;
-      border: none;
+      color: #1e1e2f;
+      font-weight: bold;
+    }
+    .content {
+      background-color: #2e2e45;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .card {
+      background-color: #3a3a55;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 15px;
     }
     canvas {
-      background-color: white;
+      background-color: #fff;
+      border-radius: 10px;
       padding: 10px;
-      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <section class="section">
-    <div class="container">
-      <div id="loginContainer">
-        <div class="box" style="max-width: 400px; margin: auto;">
-          <h1 class="title has-text-centered">Admin Login</h1>
-          <div class="field">
-            <label class="label">Username</label>
-            <div class="control">
-              <input id="username" class="input" type="text">
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Password</label>
-            <div class="control">
-              <input id="password" class="input" type="password">
-            </div>
-          </div>
-          <p id="loginError" class="has-text-danger" style="display:none;">Invalid credentials</p>
-          <button class="button is-fullwidth is-primary" onclick="login()">Login</button>
+
+  <!-- Login Page -->
+  <div id="loginContainer">
+    <div style="background-color: #2e2e45; padding: 40px; border-radius: 12px; box-shadow: 0 0 30px rgba(0, 209, 178, 0.2); text-align: center; width: 320px;">
+      <img src="USDT_logo.png" alt="Logo" style="width: 60px; margin-bottom: 20px;" />
+      <h2 style="color: #00d1b2; margin-bottom: 20px;">Welcome to USDT Pool</h2>
+      <input type="text" id="username" placeholder="Username" style="background-color: #1e1e2f; color: #fff; border: 1px solid #444; margin-bottom: 15px; padding: 12px; width: 100%; border-radius: 6px;" />
+      <input type="password" id="password" placeholder="Password" style="background-color: #1e1e2f; color: #fff; border: 1px solid #444; margin-bottom: 20px; padding: 12px; width: 100%; border-radius: 6px;" />
+      <button onclick="login()" style="padding: 12px; width: 100%; background-color: #00d1b2; color: #1e1e2f; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">Login</button>
+      <p id="loginError" style="color: #ff6666; margin-top: 15px; display: none;">Invalid username or password</p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="sidebar">
+      <h2>USDT Pool</h2>
+      <a href="#">Dashboard</a>
+      <a href="https://pancakeswap.finance/" target="_blank">PancakeSwap</a>
+      <a href="#">Liquidity</a>
+      <a href="#">Swap</a>
+      <a href="#">Analytics</a>
+      <a href="#">Deposit</a>
+      <a href="#">Withdraw</a>
+      <a href="#">Settings</a>
+      <a href="#" onclick="logout(event)">Logout</a>
+    </div>
+
+    <div class="main">
+      <div style="text-align: center; margin-bottom: 10px;">
+        <img src="USDT_logo.png" alt="USDT Logo" style="width: 80px;" />
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('overview')">Overview</div>
+        <div class="tab" onclick="showTab('pool')">Pool</div>
+        <div class="tab" onclick="showTab('stats')">Stats</div>
+        <div class="tab" onclick="showTab('deposit')">Deposit</div>
+        <div class="tab" onclick="showTab('withdraw')">Withdraw</div>
+      </div>
+
+      <div id="overview" class="content">
+        <h2>Overview</h2>
+        <div class="card">
+          <p><strong>Token:</strong> USDT</p>
+          <p><strong>Total Supply in Pool:</strong> 11,435 USDT</p>
+          <p><strong>Token Price:</strong> 1.00 USD</p>
         </div>
       </div>
 
-      <div id="dashboard" style="display: none;">
-        <div class="tabs is-toggle is-centered">
-          <ul>
-            <li class="is-active" onclick="showTab('overview')"><a>Dashboard</a></li>
-            <li onclick="showTab('pancakeswap')"><a>PancakeSwap</a></li>
-            <li onclick="showTab('deposit')"><a>Deposit</a></li>
-            <li onclick="showTab('withdraw')"><a>Withdraw</a></li>
-          </ul>
+      <div id="pool" class="content" style="display:none;">
+        <h2>Liquidity Pool</h2>
+        <div class="card">
+          <p><strong>USDT / BUSD</strong></p>
+          <p>Liquidity: 0 USDT</p>
+          <p>Current Price: 1.00 USD</p>
         </div>
+      </div>
 
-        <div id="overview" class="content" style="display: block;">
-          <div class="card">
-            <div class="card-content">
-              <h2 class="title">Liquidity Pool</h2>
-              <canvas id="liquidityChart" height="100"></canvas>
-            </div>
-          </div>
+      <div id="stats" class="content" style="display:none;">
+        <h2>Analytics</h2>
+        <div class="card">
+          <p>Liquidity Chart (Simulated)</p>
+          <canvas id="liquidityChart" width="400" height="200"></canvas>
         </div>
+      </div>
 
-        <div id="pancakeswap" class="content" style="display: none;">
-          <div class="card">
-            <div class="card-content">
-              <h2 class="title">PancakeSwap Info</h2>
-              <p>Coming soon...</p>
-            </div>
-          </div>
+      <div id="deposit" class="content" style="display:none;">
+        <h2>Deposit</h2>
+        <div class="card">
+          <p><strong>Wallet Address:</strong></p>
+          <p style="word-break: break-all;">0x630412e17E1D4D2f44Cfa997Ac0FaBdDaC222e16</p>
+          <p>Send only USDT (BEP20) to this address.</p>
         </div>
+      </div>
 
-        <div id="deposit" class="content" style="display: none;">
-          <div class="card">
-            <div class="card-content">
-              <h2 class="title">Deposit</h2>
-              <p>Your wallet address:</p>
-              <code>0x630412e17E1D4D2f44Cfa997Ac0FaBdDaC222e16</code>
-            </div>
-          </div>
-        </div>
-
-        <div id="withdraw" class="content" style="display: none;">
-          <div class="card">
-            <div class="card-content">
-              <h2 class="title">Withdraw</h2>
-              <input type="text" class="input" placeholder="Enter recipient wallet address">
-              <button class="button is-fullwidth is-primary" style="margin-top: 10px;">Submit</button>
-              <!-- Pending transaction will be injected here -->
-            </div>
+      <div id="withdraw" class="content" style="display:none;">
+        <h2>Withdraw</h2>
+        <div class="card">
+          <p><strong>Enter your withdrawal address:</strong></p>
+          <input type="text" id="withdrawAddress" placeholder="0x..." style="width: 100%; padding: 10px; border-radius: 6px; border: none; margin-bottom: 10px;" />
+          <button onclick="simulateTransaction()" style="padding: 10px 20px; border: none; border-radius: 6px; background-color: #00d1b2; color: #1e1e2f; font-weight: bold; cursor: pointer;">Submit</button>
+          <div id="pendingTransaction" style="margin-top: 20px; display: none;">
+            <p style="color: #ffaa00;">Transaction submitted. Status: <strong>Pending confirmation...</strong></p>
+            <p>Txn Hash: <span id="txnHash" style="word-break: break-all;"></span></p>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      if (username === "DexDeveloper" && password === "ai654321") {
+      if (username === "DexDeveloper" && password === "ai654321ai") {
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("dashboard").style.display = "flex";
       } else {
@@ -128,6 +192,26 @@
       document.querySelectorAll('.content').forEach(c => c.style.display = 'none');
       document.getElementById(id).style.display = 'block';
       event.target.classList.add('active');
+    }
+
+    function logout(event) {
+      if (event) event.preventDefault();
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginContainer").style.display = "flex";
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("loginError").style.display = "none";
+    }
+
+    function simulateTransaction() {
+      const address = document.getElementById("withdrawAddress").value.trim();
+      if (address.startsWith("0x") && address.length === 42) {
+        const hash = "0x" + Math.random().toString(16).substring(2, 10) + Math.random().toString(16).substring(2, 10);
+        document.getElementById("txnHash").innerText = hash;
+        document.getElementById("pendingTransaction").style.display = "block";
+      } else {
+        alert("Please enter a valid wallet address.");
+      }
     }
 
     window.onload = function() {
@@ -162,30 +246,6 @@
       });
       document.getElementById("password").addEventListener("keydown", function(e) {
         if (e.key === "Enter") login();
-      });
-
-      const submitBtn = document.querySelector("#withdraw button");
-      const inputField = document.querySelector("#withdraw input[type='text']");
-      
-      submitBtn.addEventListener("click", function() {
-        const address = inputField.value.trim();
-        if (address.length > 0) {
-          let txBox = document.getElementById("pendingTx");
-          if (!txBox) {
-            txBox = document.createElement("div");
-            txBox.id = "pendingTx";
-            txBox.style.marginTop = "20px";
-            txBox.style.padding = "15px";
-            txBox.style.backgroundColor = "#3a3a55";
-            txBox.style.borderRadius = "10px";
-            txBox.style.color = "#00d1b2";
-            document.querySelector("#withdraw .card").appendChild(txBox);
-          }
-          txBox.innerHTML = `
-            <p><strong>Transaction:</strong> Withdrawal request to <span style="word-break: break-all;">${address}</span></p>
-            <p>Status: <em>Pending confirmation...</em></p>
-          `;
-        }
       });
     }
   </script>
